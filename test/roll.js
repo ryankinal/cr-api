@@ -1,6 +1,4 @@
-var controller = require('../controllers/roll-controller'),
-	repository = require('../models/roll-repository'),
-	rollPrototype = require('../models/roll'),
+var rollPrototype = require('../models/roll'),
 	assert = require('assert'),
 	newRollFunction = function(type) {
 		return function() {
@@ -11,9 +9,13 @@ var controller = require('../controllers/roll-controller'),
 				done();
 			});
 
+			if('should exist', function() {
+				assert(roll);
+			})
+
 			it('should initialize without error', function() {
 				assert.doesNotThrow(function() {
-					roll.init(2, Math.floor(Math.random() * type) + 1, true);
+					roll.init(type, Math.floor(Math.random() * type) + 1, true);
 				});
 			});
 
@@ -67,7 +69,7 @@ describe('A new and invalid d51 roll', function() {
 
 	it('should error out when initializing', function() {
 		assert.throws(function() {
-			roll.init(2, Math.floor(Math.random() * 51) + 1, true);
+			roll.init(51, Math.floor(Math.random() * 51) + 1, true);
 		});
 	});
 });
