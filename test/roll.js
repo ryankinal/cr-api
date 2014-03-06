@@ -11,6 +11,12 @@ var rollPrototype = require('../models/roll'),
 
 			if('should exist', function() {
 				assert(roll);
+			});
+
+			it('should throw an error if value is greater than ' + type, function() {
+				assert.throws(function() {
+					roll.init(type, type + 1, true);
+				});
 			})
 
 			it('should initialize without error', function() {
@@ -23,28 +29,12 @@ var rollPrototype = require('../models/roll'),
 				assert(roll.type === type);
 			});
 
-			it('should have a "value" property between 1 and ' + type, function() {
-				assert(roll.value >= 1 && roll.value <= type);
-			});
-
 			it('should have a "used" property of false', function() {
 				assert.equal(roll.used, false);
 			});
 
 			it('should have a "certified" property of true', function() {
 				assert.equal(roll.certified, true);
-			});
-
-			it('should have a "dateAdded" property that is a valid unix timestamp', function() {
-				assert('number', typeof roll.dateAdded);
-
-				assert.doesNotThrow(function() {
-					var d = new Date(roll.dateAdded);
-				});
-			});
-
-			it('should not have a "dateUsed" property', function() {
-				assert(!('dateUsed' in roll));
 			});
 		}
 	};
