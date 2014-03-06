@@ -3,7 +3,9 @@
 	"description": "Certified Random API - random numbers chosen by fair die roll",
 	"version": "0.0.1",
 	"dependencies": {
-		"express": "3.x"
+		"express": "3.x",
+		"q": "1.x",
+		"firebase": "1.x"
 	},
 	"devDependencies": {
 		"mocha": "1.x"
