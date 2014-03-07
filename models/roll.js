@@ -4,7 +4,7 @@ module.exports = {
 	init: function(type, value, certified) {
 		var config;
 
-		if (typeof type === 'Object')
+		if (typeof type === 'object')
 		{
 			config = type;
 		}
