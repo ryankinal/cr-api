@@ -1,11 +1,44 @@
 var rollRepositoryPrototype = require('../models/roll-repository'),
 	rollPrototype = require('../models/roll'),
-	assert = require('assert');
+	config = require('../config-test'),
+	assert = require('assert'),
+	MongoClient = require('mongodb').MongoClient;
 
 describe('RollRepository', function() {
-	var repo;
+	var repo,
+		rollID;
 
 	before(function(done) {
+		var newRoll = Object.create(rollPrototype);
+		newRoll.init({
+			type: 2,
+			value: 1,
+			certified: true,
+			dateAdded: Date.now(),
+			used: false
+		});
+
+		MongoClient.connect(config.database.connectionString(), function(err, db) {
+			if (err)
+			{
+				throw('Database connection failed');
+			}
+
+			var rolls = db.collection('rolls');
+
+			rolls.remove(function() {
+				db.collection('rolls').insert(newRoll, function(err, objects) {
+					if (err)
+					{
+						throw('Insert failed');
+					}
+
+					rollID = objects[0]._id;
+					done();
+				});
+			});
+		});
+
 		repo = Object.create(rollRepositoryPrototype);
 		done();
 	});
@@ -42,142 +75,83 @@ describe('RollRepository', function() {
 
 		it('should return false if the "value" property is less than 1', function() {
 			invalidRoll.value = 0;
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "value" property is greater than the "type" property', function() {
 			invalidRoll.value = 23;
 			invalidRoll.type = 6;
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "type" property is missing', function() {
 			delete invalidRoll.type;
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "value" property is missing', function() {
 			delete invalidRoll.value;
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "certified" property is missing', function() {
 			delete invalidRoll.certified;
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "used" property is missing', function() {
 			delete invalidRoll.used;
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "id" property is present and the "dateAdded" property is missing', function() {
 			delete invalidRoll.dateAdded;
 			invalidRoll.id = 1234;
 
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "used" property is true and the "dateUsed" property is missing', function() {
 			invalidRoll.used = true;
 			delete invalidRoll.dateUsed;
 
-			assert(!repo.validate(invalidRoll));
+			assert(repo.validate(invalidRoll), false);
 		});
 	});
 
 	describe('#get', function() {
-		var roll;
-
-		before(function(done) {
-			roll = repo.get(12345);
-		});
-
-		it('should return a valid roll object', function() {
-			assert(roll && repo.validate(roll));
+		it('should get a valid roll without error', function(done) {
+			assert.doesNotThrow(function() {
+				repo.get(1234).then(function(roll) {
+					assert(repo.validate(roll));
+					done();
+				});
+			});
 		});
 	});
 
 	describe('#create', function() {
-		var roll,
-			returned;
-
-		before(function(done) {
-			var promise;
-
-			roll = Object.create(rollPrototype);
-			roll.init({
-				type: 2,
-				value: 1,
-				certified: true,
-			});
-
-			promise = repo.insert(roll);
-
-			promise.then(function(newRoll) {
-				returned = newRoll;
-				done();
-			}, function() {
-				throw('Insert failed');
-			});
-		});
-
-		it('should set an id on the new roll', function() {
-			assert('id' in returned && typeof returned.id === 'string');
-		});
-
-		it('should return a valid roll object', function() {
-			assert(repo.validate(returned));
-		});
-	});
-
-	describe('#update', function() {
-		var noID,
-			roll,
-			returned;
-
-		before(function(done) {
-			var promise = repo.get(1324);
-
-			noID = Object.create(rollPrototype);
-			noID.init({
+		it('should create a valid roll in the database', function(done) {
+			var newRoll = Object.create(rollPrototype);
+			newRoll.init({
 				type: 2,
 				value: 1,
 				certified: true
 			});
 
-			promise.then(function(newRoll) {
-				var p2;
-
-				roll = newRoll;
-				roll.used = true;
-				roll.dateUsed = Date.now();
-
-				p2 = repo.update(roll);
-				p2.then(function(updatedRoll) {
-					returned = updatedRoll;
-					done();
-				}, function() {
-					throw('Update failed');
+			repo.create(newRoll).then(function(roll) {
+				assert.doesNotThrow(function() {
+					assert(repo.validate(roll));
+					assert('id' in roll);
 				})
-			}, function() {
-				throw('Get failed');
 			});
 		});
+	});
 
-		it('should not update a roll if it does not have an id', function() {
-			assert.throws(function() {
-				repo.update(noID);
-			});
-		});
-
-		it('should return a valid roll object', function() {
-			assert(repo.validate(returned));
-		});
-
-		it('should not change the id of the roll', function() {
-			assert(roll.id === returned.id);
-		});
+	describe('#update', function() {
+		it('should update a roll with an id', function(done) {
+			var oldRoll = repo.get(1234);
+		})
 	});
 
 	describe('#find', function() {
