@@ -1,7 +1,10 @@
 var q = require('q'),
-	firebase = require('firebase');
+	config = require('../config-test'),
+	MongoClient = require('mongodb').MongoClient;
 
 module.exports = {
+	validate: function() {
+	},
 	get: function() {
 		var deferred = q.defer();
 		return deferred.promise;
@@ -10,7 +13,7 @@ module.exports = {
 		var deferred = q.defer();
 		return deferred.promise;
 	},
-	insert: function() {
+	create: function() {
 		var deferred = q.defer();
 		return deferred.promise;
 	},
