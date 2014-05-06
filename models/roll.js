@@ -1,6 +1,5 @@
-var validTypes = [2, 4, 6, 8, 10, 12, 20, 30, 100];
-
 module.exports = {
+	validTypes: [2, 4, 6, 8, 10, 12, 20, 30, 100],
 	init: function(type, value, certified) {
 		var config;
 
@@ -17,7 +16,7 @@ module.exports = {
 			};
 		}
 
-		if (validTypes.indexOf(config.type) === -1 && !(/^10{2,}$/.test(config.type)))
+		if (this.validTypes.indexOf(config.type) === -1 && !(/^10{2,}$/.test(config.type)))
 		{
 			throw('Invalid die type');
 		}
@@ -27,6 +26,7 @@ module.exports = {
 			throw('The value of a roll may not be greater than its type');
 		}
 
+		this.id = config.id || config._id || undefined;
 		this.type = config.type;
 		this.value = config.value;
 		this.certified = config.certified;

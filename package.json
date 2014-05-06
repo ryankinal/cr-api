@@ -8,7 +8,8 @@
 		"mongodb": "1.x"
 	},
 	"devDependencies": {
-		"mocha": "1.x"
+		"mocha": "1.x",
+		"mongodb-fixtures": "0.0.4"
 	},
 	"scripts": {
 		"test": "make test"

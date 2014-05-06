@@ -2,46 +2,49 @@ var rollRepositoryPrototype = require('../models/roll-repository'),
 	rollPrototype = require('../models/roll'),
 	config = require('../config-test'),
 	assert = require('assert'),
-	MongoClient = require('mongodb').MongoClient;
+	MongoClient = require('mongodb').MongoClient,
+	rollID,
+	repo;
 
-describe('RollRepository', function() {
-	var repo,
-		rollID;
+before(function(done) {
+	this.timeout(5000);
 
-	before(function(done) {
-		var newRoll = Object.create(rollPrototype);
-		newRoll.init({
-			type: 2,
-			value: 1,
-			certified: true,
-			dateAdded: Date.now(),
-			used: false
-		});
+	var newRoll = Object.create(rollPrototype);
+	newRoll.init({
+		type: 2,
+		value: 1,
+		certified: true,
+		dateAdded: Date.now(),
+		used: false
+	});
 
-		MongoClient.connect(config.database.connectionString(), function(err, db) {
-			if (err)
-			{
-				throw('Database connection failed');
-			}
+	MongoClient.connect(config.database.connectionString(), function(err, db) {
+		if (err)
+		{
+			throw('Database connection failed');
+		}
 
-			var rolls = db.collection('rolls');
+		var rolls = db.collection('rolls');
 
-			rolls.remove(function() {
-				db.collection('rolls').insert(newRoll, function(err, objects) {
-					if (err)
-					{
-						throw('Insert failed');
-					}
-
-					rollID = objects[0]._id;
+		rolls.remove(function() {
+			db.collection('rolls').insert(newRoll, function(err, objects) {
+				if (err)
+				{
+					throw('Insert failed');
 					done();
-				});
+				}
+
+				rollID = objects[0]._id;
+				done();
 			});
 		});
-
-		repo = Object.create(rollRepositoryPrototype);
-		done();
 	});
+
+	repo = Object.create(rollRepositoryPrototype);
+});
+
+describe('RollRepository', function() {
+	this.timeout(5000);
 
 	describe('#validate', function() {
 		var validRoll,
@@ -75,57 +78,55 @@ describe('RollRepository', function() {
 
 		it('should return false if the "value" property is less than 1', function() {
 			invalidRoll.value = 0;
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "value" property is greater than the "type" property', function() {
 			invalidRoll.value = 23;
 			invalidRoll.type = 6;
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "type" property is missing', function() {
 			delete invalidRoll.type;
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "value" property is missing', function() {
 			delete invalidRoll.value;
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "certified" property is missing', function() {
 			delete invalidRoll.certified;
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "used" property is missing', function() {
 			delete invalidRoll.used;
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "id" property is present and the "dateAdded" property is missing', function() {
 			delete invalidRoll.dateAdded;
 			invalidRoll.id = 1234;
 
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 
 		it('should return false if the "used" property is true and the "dateUsed" property is missing', function() {
 			invalidRoll.used = true;
 			delete invalidRoll.dateUsed;
 
-			assert(repo.validate(invalidRoll), false);
+			assert.equal(repo.validate(invalidRoll), false);
 		});
 	});
 
 	describe('#get', function() {
 		it('should get a valid roll without error', function(done) {
-			assert.doesNotThrow(function() {
-				repo.get(1234).then(function(roll) {
-					assert(repo.validate(roll));
-					done();
-				});
+			repo.get(rollID).then(function(roll) {
+				assert(repo.validate(roll));
+				done();
 			});
 		});
 	});
@@ -140,17 +141,25 @@ describe('RollRepository', function() {
 			});
 
 			repo.create(newRoll).then(function(roll) {
-				assert.doesNotThrow(function() {
-					assert(repo.validate(roll));
-					assert('id' in roll);
-				})
+				assert(repo.validate(roll));
+				done();
+			}, function(err) {
+				assert(!err);
+				done();
 			});
 		});
 	});
 
 	describe('#update', function() {
 		it('should update a roll with an id', function(done) {
-			var oldRoll = repo.get(1234);
+			var oldRoll = repo.get(rollID);
+			oldRoll.used = true;
+			oldRoll.dateUsed = Date.now();
+			repo.update(oldRoll).then(function(roll) {
+				done();
+			}, function(err) { 
+				done();
+			});
 		})
 	});
 
