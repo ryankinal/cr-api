@@ -49,6 +49,7 @@ describe('A new d12 roll', newRollFunction(12));
 describe('A new d20 roll', newRollFunction(20));
 describe('A new d30 roll', newRollFunction(30));
 describe('A new d100 roll', newRollFunction(100));
+describe('A new d1000 roll', newRollFunction(1000));
 
 describe('A new and invalid d51 roll', function() {
 	var roll;
