@@ -6,6 +6,7 @@ var rollPrototype = require('../models/roll'),
 
 			before(function(done) {
 				roll = Object.create(rollPrototype);
+				roll.init(type, Math.floor(Math.random() * type) + 1, true);
 				done();
 			});
 
