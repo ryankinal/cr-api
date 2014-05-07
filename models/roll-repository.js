@@ -6,8 +6,10 @@ var q = require('q'),
 
 module.exports = {
 	validate: function(roll) {
+		console.log(config);
+
 		var keys = Object.keys(roll),
-			missing = ['type', 'value', 'certified', 'used'].filter(function(field) {
+			missing = ['type', 'value', 'certified'].filter(function(field) {
 				return keys.indexOf(field) === -1;
 			});
 
@@ -36,7 +38,7 @@ module.exports = {
 			return false;
 		}
 
-		if (roll.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(config.type))) {
+		if (config.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(roll.type))) {
 			console.log('Roll has an invalid type');
 			return false;
 		}
