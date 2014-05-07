@@ -1,6 +1,8 @@
 var q = require('q'),
 	config = require('../config-test'),
-	MongoClient = require('mongodb').MongoClient;
+	MongoClient = require('mongodb').MongoClient,
+	ObjectId = require('mongodb').ObjectID,
+	rollProto = require('./roll');
 
 module.exports = {
 	validate: function(roll) {
@@ -10,26 +12,32 @@ module.exports = {
 			});
 
 		if (missing.length > 0) {
+			console.log('Missing required fields: ' + missing.join(', '));
 			return false;
 		}
 
 		if (roll.value < 1 || roll.value > roll.type) {
+			console.log('Roll value outside of bounds: 1 to ' + roll.type);
 			return false;
 		}
 
 		if (roll.used && !roll.dateUsed) {
+			console.log('Roll is used, but date used is not set');
 			return false;
 		}
 
 		if (roll.id && !roll.dateAdded) {
+			console.log('Roll has ID, but does not have dateAdded');
 			return false;
 		}
 
 		if (roll.dateAdded && roll.dateAdded > Date.now()) {
+			console.log('Roll was added in the future');
 			return false;
 		}
 
 		if (roll.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(config.type))) {
+			console.log('Roll has an invalid type');
 			return false;
 		}
 
@@ -42,14 +50,44 @@ module.exports = {
 			if (err) {
 				deferred.reject(new Error('Database connection failed'));
 			} else {
-				db.collection('rolls').find({ _id: id }, function(err, obj) {
-					if (err) {
+				db.collection('rolls').find({ _id: ObjectId(id) }).next(function(err, obj) {
+					if (err || !obj) {
 						deferred.reject(err);
-						MongoClient.close();
+					} else {
+						var roll = Object.create(rollProto);
+						roll.init(obj);
+						deferred.resolve(roll);
 					}
+				});
+			}
+		});
 
-					obj.toArray(function(err, arr) {
-						deferred.resolve(arr[0]);
+		return deferred.promise;
+	},
+	getRandom: function(type) {
+		var deferred = q.defer(),
+			repo = this;
+
+		MongoClient.connect(config.database.connectionString(), function(err, db) {
+			if (err) {
+				deferred.reject(new Error('Database connection failed'));
+			} else {
+				db.collection('rolls').find({ type: type, used: false }).count(function(err, count) {
+					db.collection('rolls').find({ type: type, used: false }).limit(-1).skip(Math.floor(Math.random() * count)).next(function(err, obj) {
+						if (err || !obj) {
+							deferred.reject(err);
+						} else {
+							var roll = Object.create(rollProto);
+							roll.init(obj);
+							roll.used = true;
+							roll.dateUsed = Date.now();
+
+							repo.update(roll).then(function(roll) {
+								deferred.resolve(roll);
+							}, function(err) {
+								deferred.reject(err);
+							});
+						}
 					});
 				});
 			}
@@ -93,17 +131,19 @@ module.exports = {
 			deferred.reject(new Error('Invalid roll'));
 		} else {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
-				console.log(err, db);
 				if (err) {
-					console.log(err);
 					deferred.reject(err)
 				} else {
-					db.collection('rolls').update({ _id: roll.id }, roll, function(err, objects) {
-						console.log(err, objects);
-						if (err) {
+					var id = roll.id;
+					delete roll.id;
+					db.collection('rolls').update({ _id: id }, roll, function(err, count) {
+						if (err || count === 0) {
 							deferred.reject(err);
 						} else {
-							deferred.resolve(objects[0]);
+							var newRoll = Object.create(rollProto);
+							newRoll.init(roll);
+							newRoll.id = id;
+							deferred.resolve(newRoll);
 						}
 					})
 				}
