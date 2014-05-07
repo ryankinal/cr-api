@@ -41,6 +41,11 @@ module.exports = {
 			return false;
 		}
 
+		if (typeof roll.used !== 'boolean') {
+			console.log('Roll must have a boolean property "used"');
+			return false;
+		}
+
 		return true;
 	},
 	get: function(id) {
@@ -100,23 +105,26 @@ module.exports = {
 		return deferred.promise;
 	},
 	create: function(roll) {
-		var deferred = q.defer();
+		var deferred = q.defer(),
+			newRoll = Object.create(rollProto);
 
-		if (!this.validate(roll)) {
+		newRoll.init(roll);
+		newRoll.dateAdded = Date.now();
+
+		if (!this.validate(newRoll)) {
 			deferred.reject(new Error('Invalid roll'));
 		} else {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					db.collection('rolls').insert(roll, function(err, objects) {
+					db.collection('rolls').insert(newRoll, function(err, objects) {
 						if (err) {
 							deferred.reject(err);
 						} else {
-							deferred.resolve(objects[0]);
+							newRoll.init(objects[0]);
+							deferred.resolve(newRoll);
 						}
-
-						db.close();
 					});
 				}
 			});
@@ -145,7 +153,7 @@ module.exports = {
 							newRoll.id = id;
 							deferred.resolve(newRoll);
 						}
-					})
+					});
 				}
 			});
 		}

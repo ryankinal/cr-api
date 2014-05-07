@@ -8,31 +8,41 @@ app.configure(function() {
 });
 
 app.post('/roll', function(req, res) {
-	if (repo.validate(req.body)) {
-		repo.create(req.body).then(function(roll) {
-			res.json({
-				meta: {
-					success: true
-				},
-				roll: roll
-			});
+	repo.create(req.body).then(function(roll) {
+		res.json({
+			meta: {
+				success: true
+			},
+			links: {
+				self: '/roll/' + roll.id
+			},
+			roll: roll
 		});
-	} else {
+	}, function(err) {
 		res.statusCode = 400;
 		res.json({
 			meta: {
 				success: false
 			},
-			error: 'Invalid roll data'
-		});
-	}
+			error: err
+		})
+	});
 });
 
 app.get('/roll', function(req, res) {
 	if (req.query.type) {
 		repo.getRandom(parseInt(req.query.type, 10)).then(function(roll) {
 			if (roll) {
-				res.json(roll);
+				res.json({
+					meta: {
+						success: true
+					},
+					links: {
+						self: '/roll/' + roll.id,
+						another: '/roll?type=' + roll.type
+					},
+					roll: roll
+				});
 			} else {
 				res.statusCode = 404;
 				res.json({
@@ -46,8 +56,7 @@ app.get('/roll', function(req, res) {
 			res.statusCode = 404;
 			res.json({
 				meta: {
-					success: false,
-					err: err
+					success: false
 				},
 				error: 'No rolls of type ' + req.query.type + ' found'
 			});
@@ -68,6 +77,9 @@ app.get('/roll/:id', function(req, res) {
 		res.json({
 			meta: {
 				success: true
+			},
+			links: {
+				self: '/roll/' + roll.id
 			},
 			roll: roll
 		})

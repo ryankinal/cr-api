@@ -27,7 +27,16 @@ module.exports = {
 			throw(new Error('The value of a roll may not be greater than its type'));
 		}
 
-		this.id = roll.id || roll._id || undefined;
+		if (roll.id) {
+			this.id = roll.id;
+		} else if (roll._id) {
+			this.id = roll._id;
+		}
+
+		if (this._id) {
+			delete this._id;
+		}
+
 		this.type = roll.type;
 		this.value = roll.value;
 		this.certified = roll.certified;
