@@ -8,7 +8,6 @@ app.configure(function() {
 });
 
 app.post('/roll', function(req, res) {
-	console.log(typeof req.body, req.body);
 	if (repo.validate(req.body)) {
 		repo.create(req.body).then(function(roll) {
 			res.json({

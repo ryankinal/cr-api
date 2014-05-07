@@ -6,8 +6,6 @@ var q = require('q'),
 
 module.exports = {
 	validate: function(roll) {
-		console.log(config);
-
 		var keys = Object.keys(roll),
 			missing = ['type', 'value', 'certified'].filter(function(field) {
 				return keys.indexOf(field) === -1;
