@@ -1,7 +1,12 @@
 {
 	"name": "cr-api",
+	"author": "Ryan Kinal",
 	"description": "Certified Random API - random numbers chosen by fair die roll",
-	"version": "0.0.1",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/ryankinal/cr-api"
+	},
+	"version": "0.1.0",
 	"dependencies": {
 		"express": "3.x",
 		"q": "1.x",
@@ -11,7 +16,7 @@
 		"mocha": "1.x",
 		"mongodb-fixtures": "0.0.4"
 	},
-	"scripts": {
-		"test": "make test"
-	}	
+	"engines": {
+		"node": "0.10.x"
+	}
 }
