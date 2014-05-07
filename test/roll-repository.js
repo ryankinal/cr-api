@@ -163,7 +163,7 @@ describe('RollRepository', function() {
 		})
 	});
 
-	describe('#find', function() {
+	/*describe('#find', function() {
 		var rolls;
 
 		before(function(done) {
@@ -202,5 +202,5 @@ describe('RollRepository', function() {
 		it('should return true', function() {
 			assert(success);
 		});
-	});
+	});*/
 })
