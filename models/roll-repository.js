@@ -1,5 +1,5 @@
 var q = require('q'),
-	config = require('../config-test'),
+	config = require('../config'),
 	MongoClient = require('mongodb').MongoClient,
 	ObjectId = require('mongodb').ObjectID,
 	rollProto = require('./roll');

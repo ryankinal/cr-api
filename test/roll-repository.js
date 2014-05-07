@@ -1,6 +1,6 @@
 var rollRepositoryPrototype = require('../models/roll-repository'),
 	rollPrototype = require('../models/roll'),
-	config = require('../config-test'),
+	config = require('../config'),
 	assert = require('assert'),
 	MongoClient = require('mongodb').MongoClient,
 	rollID,
@@ -21,7 +21,7 @@ before(function(done) {
 	MongoClient.connect(config.database.connectionString(), function(err, db) {
 		if (err)
 		{
-			throw('Database connection failed');
+			throw(new Error('Database connection failed'));
 		}
 
 		var rolls = db.collection('rolls');

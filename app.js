@@ -1,6 +1,6 @@
 var express = require('express'),
 	repo = require('./models/roll-repository'),
-	config = require('./config-test'),
+	config = require('./config'),
 	app = express();
 
 app.configure(function() {

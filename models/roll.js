@@ -1,4 +1,4 @@
-var config = require('../config-test');
+var config = require('../config');
 
 module.exports = {
 	init: function(type, value, certified) {
