@@ -18,12 +18,12 @@ module.exports = {
 
 		if (this.validTypes.indexOf(config.type) === -1 && !(/^10{2,}$/.test(config.type)))
 		{
-			throw('Invalid die type');
+			throw(new Error('Invalid die type'));
 		}
 
 		if (config.value > config.type)
 		{
-			throw('The value of a roll may not be greater than its type');
+			throw(new Error('The value of a roll may not be greater than its type'));
 		}
 
 		this.id = config.id || config._id || undefined;
