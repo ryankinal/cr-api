@@ -127,6 +127,24 @@ describe('RollRepository', function() {
 			repo.get(rollID).then(function(roll) {
 				assert(repo.validate(roll));
 				done();
+			}, function() {
+				assert(false);
+				done();
+			});
+		});
+	});
+
+	describe('#getRandom', function() {
+		it('should get a valid roll without error', function(done) {
+			repo.getRandom(2).then(function(roll) {
+				assert(repo.validate(roll));
+				assert(roll.id);
+				assert(roll.used);
+				assert(roll.dateUsed);
+				done();
+			}, function() {
+				assert(false);
+				done();
 			});
 		});
 	});
