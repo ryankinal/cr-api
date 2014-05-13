@@ -41,6 +41,11 @@ module.exports = {
 			return false;
 		}
 
+		if (typeof roll.certified !== 'boolean') {
+			console.log('Roll must have a boolean true/false property "certified"');
+			return false;
+		}
+
 		if (typeof roll.used !== 'boolean') {
 			console.log('Roll must have a boolean property "used"');
 			return false;
