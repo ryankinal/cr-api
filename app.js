@@ -4,7 +4,8 @@ var express = require('express'),
 	app = express();
 
 app.configure(function() {
-	app.use(express.bodyParser());
+	app.use(express.json());
+	app.use(express.urlencoded());
 });
 
 app.post('/roll', function(req, res) {
