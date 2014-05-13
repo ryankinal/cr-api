@@ -20,6 +20,14 @@ module.exports = {
 		roll.type = parseInt(roll.type, 10);
 		roll.value = parseInt(roll.value, 10);
 
+		if (typeof roll.certified === 'string') {
+			if (roll.certified === 'true') {
+				roll.certified = true;
+			} else {
+				roll.certified = false;
+			}
+		}
+
 		if (config.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(roll.type)))
 		{
 			throw(new Error('Invalid die type'));
