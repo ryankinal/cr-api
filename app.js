@@ -95,4 +95,14 @@ app.get('/roll/:id', function(req, res) {
 	});
 });
 
+app.get('/proxy.html', function(req, res) {
+	res.type('text/html');
+	res.sendfile('proxy.html');
+});
+
+app.get('/xdomain.min.js', function(req, res) {
+	res.type('text/javascript');
+	res.sendfile('vendor/xdomain/dist/0.6/xdomain.min.js');
+});
+
 app.listen(process.env.PORT || 4444);

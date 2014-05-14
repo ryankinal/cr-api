@@ -1,0 +1,6 @@
+{
+	"name": "certified random website",
+	"dependencies": {
+		"xdomain": "0.6.x"
+	}
+}
