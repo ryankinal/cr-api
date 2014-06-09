@@ -1,5 +1,6 @@
 var express = require('express'),
 	repo = require('./models/roll-repository'),
+	stats = require('./models/stats-repository'),
 	config = require('./config'),
 	app = express();
 
@@ -103,6 +104,27 @@ app.get('/proxy.html', function(req, res) {
 app.get('/xdomain.min.js', function(req, res) {
 	res.type('text/javascript');
 	res.sendfile('vendor/xdomain/dist/0.6/xdomain.min.js');
+});
+
+app.get('/stats', function(req, res) {
+	stats.byType().then(function(obj) {
+		res.json({
+			meta: {
+				success: true
+			},
+			links: {
+				self: '/stats'
+			},
+			stats: obj
+		});
+	}, function(err) {
+		res.json({
+			meta: {
+				success: false
+			},
+			error: err
+		});
+	})
 });
 
 app.listen(process.env.PORT || 4444);
