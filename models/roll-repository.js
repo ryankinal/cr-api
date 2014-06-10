@@ -77,10 +77,12 @@ module.exports = {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
 				if (err) {
 					deferred.reject(new Error('Database connection failed'));
+					db.close();
 				} else {
 					db.collection('rolls').find({ _id: { $in: ids.map(ObjectId) }}, function(err, obj) {
 						if (err || !obj) {
 							deferred.reject(err);
+							db.close();
 						} else {
 							var results = obj.toArray(function(err, results) {
 								if (err || !results) {
@@ -113,6 +115,7 @@ module.exports = {
 		MongoClient.connect(config.database.connectionString(), function(err, db) {
 			if (err) {
 				deferred.reject(new Error('Database connection failed'));
+				db.close();
 			} else {
 				db.collection('rolls').find({ type: type, used: false }).count(function(err, count) {
 					db.collection('rolls').find({ type: type, used: false }).limit(-1).skip(Math.floor(Math.random() * count)).next(function(err, obj) {
@@ -165,6 +168,7 @@ module.exports = {
 					db.collection('rolls').insert(newRoll, function(err, objects) {
 						if (err) {
 							deferred.reject(err);
+							db.close();
 						} else {
 							newRoll.init(objects[0]);
 							deferred.resolve(newRoll);
@@ -194,6 +198,7 @@ module.exports = {
 					db.collection('rolls').update({ _id: id }, roll, function(err, count) {
 						if (err || count === 0) {
 							deferred.reject(err);
+							db.close();
 						} else {
 							var newRoll = Object.create(rollProto);
 							newRoll.init(roll);

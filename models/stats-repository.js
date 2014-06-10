@@ -9,6 +9,7 @@ module.exports = {
 		MongoClient.connect(config.database.connectionString(), function(err, db) {
 			if (err) {
 				deferred.reject(new Error('Database connection failed'));
+				db.close();
 			} else {
 				db.collection('rolls').aggregate([
 					{ $group: { _id: { used: '$used' }, count: { $sum: 1 }}}
@@ -48,6 +49,7 @@ module.exports = {
 		MongoClient.connect(config.database.connectionString(), function(err, db) {
 			if (err) {
 				deferred.reject(new Error('Database connection failed'));
+				db.close();
 			} else {
 				db.collection('rolls').aggregate([
 						{ $group: { _id: { type: '$type', used: '$used' }, count: { $sum: 1 }}}
@@ -93,6 +95,7 @@ module.exports = {
 		MongoClient.connect(config.database.connectionString(), function(err, db) {
 			if (err) {
 				deferred.reject(new Error('Database connection failed'));
+				db.close();
 			} else {
 				db.collection('rolls').aggregate([
 						{ $match: { type: type }},
