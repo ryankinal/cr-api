@@ -1,4 +1,5 @@
 var express = require('express'),
+	q = require('q'),
 	repo = require('./models/roll-repository'),
 	stats = require('./models/stats-repository'),
 	config = require('./config'),
@@ -107,7 +108,9 @@ app.get('/xdomain.min.js', function(req, res) {
 });
 
 app.get('/stats', function(req, res) {
-	stats.byType().then(function(obj) {
+	q.spread([stats.total(), stats.groupByType()], function(total, byType) {
+		byType.all = total
+
 		res.json({
 			meta: {
 				success: true
@@ -115,7 +118,7 @@ app.get('/stats', function(req, res) {
 			links: {
 				self: '/stats'
 			},
-			stats: obj
+			stats: byType
 		});
 	}, function(err) {
 		res.json({
@@ -125,6 +128,27 @@ app.get('/stats', function(req, res) {
 			error: err
 		});
 	})
+});
+
+app.get('/stats/:type', function(req, res) {
+	stats.forType(parseInt(req.params.type)).then(function(stats) {
+		res.json({
+			meta: {
+				success: true
+			},
+			links: {
+				self: '/stats/' + req.params.type
+			},
+			stats: stats
+		});
+	}, function(err) {
+		res.json({
+			meta: {
+				success: false
+			},
+			error: err
+		});
+	});
 });
 
 app.listen(process.env.PORT || 4444);
