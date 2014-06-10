@@ -21,6 +21,7 @@ module.exports = {
 
 					if (err || !obj) {
 						deferred.reject(err);
+						db.close();
 					} else {
 						obj.forEach(function(stat) {
 							if (stat._id.used) {
@@ -33,6 +34,7 @@ module.exports = {
 						});
 
 						deferred.resolve(ret);
+						db.close();
 					}
 				})
 			}
@@ -55,6 +57,7 @@ module.exports = {
 
 						if (err || !obj) {
 							deferred.reject(err);
+							db.close();
 						} else {
 							obj.forEach(function(stat) {
 								if (typeof ret[stat._id.type] === 'undefined') {
@@ -75,6 +78,7 @@ module.exports = {
 							});
 
 							deferred.resolve(ret);
+							db.close();
 						}
 					}
 				);
@@ -102,6 +106,7 @@ module.exports = {
 
 						if (err || !obj) {
 							deferred.reject(err);
+							db.close();
 						} else {
 							obj.forEach(function(stat) {
 								if (stat._id.used) {
@@ -114,6 +119,7 @@ module.exports = {
 							});
 
 							deferred.resolve(ret);
+							db.close();
 						}
 					}
 				);

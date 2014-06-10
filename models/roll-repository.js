@@ -63,10 +63,13 @@ module.exports = {
 				db.collection('rolls').find({ _id: ObjectId(id) }).next(function(err, obj) {
 					if (err || !obj) {
 						deferred.reject(err);
+						db.close();
 					} else {
 						var roll = Object.create(rollProto);
 						roll.init(obj);
 						deferred.resolve(roll);
+
+						db.close();
 					}
 				});
 			}
@@ -89,12 +92,15 @@ module.exports = {
 							var results = obj.toArray(function(err, results) {
 								if (err || !results) {
 									deferred.reject('No results for specified ids');
+									db.close();
 								} else {
 									deferred.resolve(results.map(function(item) {
 										var roll = Object.create(rollProto);
 										roll.init(item);
 										return roll;
 									}));
+
+									db.close();
 								}
 							});
 						}
@@ -127,8 +133,10 @@ module.exports = {
 
 							repo.update(roll).then(function(roll) {
 								deferred.resolve(roll);
+								db.close();
 							}, function(err) {
 								deferred.reject(err);
+								db.close();
 							});
 						}
 					});
@@ -155,6 +163,7 @@ module.exports = {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
 				if (err) {
 					deferred.reject(err);
+					db.close();
 				} else {
 					db.collection('rolls').insert(newRoll, function(err, objects) {
 						if (err) {
@@ -162,6 +171,7 @@ module.exports = {
 						} else {
 							newRoll.init(objects[0]);
 							deferred.resolve(newRoll);
+							db.close();
 						}
 					});
 				}
@@ -179,6 +189,7 @@ module.exports = {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
 				if (err) {
 					deferred.reject(err)
+					db.close();
 				} else {
 					var id = roll.id;
 					delete roll.id;
@@ -190,6 +201,7 @@ module.exports = {
 							newRoll.init(roll);
 							newRoll.id = id;
 							deferred.resolve(newRoll);
+							db.close();
 						}
 					});
 				}
