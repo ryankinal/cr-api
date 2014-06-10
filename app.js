@@ -97,6 +97,28 @@ app.get('/roll/:id', function(req, res) {
 	});
 });
 
+app.get('/rolls', function(req, res) {
+	if (req.query.ids) {
+		var ids = req.query.ids.split(',');
+		repo.getMany(ids).then(function(rolls) {
+			res.jsonp({
+				meta: {
+					success: true
+				},
+				rolls: rolls
+			});
+		});
+	} else {
+		res.statusCode = 400;
+		res.jsonp({
+			meta: {
+				success: false
+			},
+			error: '/rolls requires the ids parameter in the query string'
+		});
+	}
+});
+
 app.get('/proxy.html', function(req, res) {
 	res.type('text/html');
 	res.sendfile('proxy.html');

@@ -74,6 +74,39 @@ module.exports = {
 
 		return deferred.promise;
 	},
+	getMany: function(ids) {
+		if (ids.forEach) {
+			var deferred = q.defer();
+
+			MongoClient.connect(config.database.connectionString(), function(err, db) {
+				if (err) {
+					deferred.reject(new Error('Database connection failed'));
+				} else {
+					db.collection('rolls').find({ _id: { $in: ids.map(ObjectId) }}, function(err, obj) {
+						if (err || !obj) {
+							deferred.reject(err);
+						} else {
+							var results = obj.toArray(function(err, results) {
+								if (err || !results) {
+									deferred.reject('No results for specified ids');
+								} else {
+									deferred.resolve(results.map(function(item) {
+										var roll = Object.create(rollProto);
+										roll.init(item);
+										return roll;
+									}));
+								}
+							});
+						}
+					});
+				}
+			});
+
+			return deferred.promise;
+		} else {
+			return this.get(ids);
+		}
+	},
 	getRandom: function(type) {
 		var deferred = q.defer(),
 			repo = this;
