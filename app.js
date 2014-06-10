@@ -12,7 +12,7 @@ app.configure(function() {
 
 app.post('/roll', function(req, res) {
 	repo.create(req.body).then(function(roll) {
-		res.json({
+		res.jsonp({
 			meta: {
 				success: true
 			},
@@ -23,7 +23,7 @@ app.post('/roll', function(req, res) {
 		});
 	}, function(err) {
 		res.statusCode = 400;
-		res.json({
+		res.jsonp({
 			meta: {
 				success: false
 			},
@@ -36,7 +36,7 @@ app.get('/roll', function(req, res) {
 	if (req.query.type) {
 		repo.getRandom(parseInt(req.query.type, 10)).then(function(roll) {
 			if (roll) {
-				res.json({
+				res.jsonp({
 					meta: {
 						success: true
 					},
@@ -48,7 +48,7 @@ app.get('/roll', function(req, res) {
 				});
 			} else {
 				res.statusCode = 404;
-				res.json({
+				res.jsonp({
 					meta: {
 						success: false
 					},
@@ -57,7 +57,7 @@ app.get('/roll', function(req, res) {
 			}
 		}, function(err) {
 			res.statusCode = 404;
-			res.json({
+			res.jsonp({
 				meta: {
 					success: false
 				},
@@ -66,7 +66,7 @@ app.get('/roll', function(req, res) {
 		});
 	} else {
 		res.statusCode = 400;
-		res.json({
+		res.jsonp({
 			meta: {
 				success: false
 			},
@@ -77,7 +77,7 @@ app.get('/roll', function(req, res) {
 
 app.get('/roll/:id', function(req, res) {
 	repo.get(req.params.id).then(function(roll) {
-		res.json({
+		res.jsonp({
 			meta: {
 				success: true
 			},
@@ -88,7 +88,7 @@ app.get('/roll/:id', function(req, res) {
 		})
 	}, function() {
 		res.statusCode = 404;
-		res.json({
+		res.jsonp({
 			meta: {
 				success: false
 			},
@@ -111,7 +111,7 @@ app.get('/stats', function(req, res) {
 	q.spread([stats.total(), stats.groupByType()], function(total, byType) {
 		byType.all = total
 
-		res.json({
+		res.jsonp({
 			meta: {
 				success: true
 			},
@@ -121,7 +121,7 @@ app.get('/stats', function(req, res) {
 			stats: byType
 		});
 	}, function(err) {
-		res.json({
+		res.jsonp({
 			meta: {
 				success: false
 			},
@@ -132,7 +132,7 @@ app.get('/stats', function(req, res) {
 
 app.get('/stats/:type', function(req, res) {
 	stats.forType(parseInt(req.params.type)).then(function(stats) {
-		res.json({
+		res.jsonpp({
 			meta: {
 				success: true
 			},
@@ -142,7 +142,7 @@ app.get('/stats/:type', function(req, res) {
 			stats: stats
 		});
 	}, function(err) {
-		res.json({
+		res.jsonpp({
 			meta: {
 				success: false
 			},
