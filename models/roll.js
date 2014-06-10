@@ -28,7 +28,7 @@ module.exports = {
 			}
 		}
 
-		if (config.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(roll.type)))
+		/*if (config.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(roll.type)))
 		{
 			throw(new Error('Invalid die type'));
 		}
@@ -36,7 +36,7 @@ module.exports = {
 		if (roll.value > roll.type)
 		{
 			throw(new Error('The value of a roll may not be greater than its type'));
-		}
+		}*/
 
 		if (roll.id) {
 			this.id = roll.id;

@@ -9,49 +9,42 @@ module.exports = {
 		var keys = Object.keys(roll),
 			missing = ['type', 'value', 'certified'].filter(function(field) {
 				return keys.indexOf(field) === -1;
-			});
+			}),
+			errors = [];
 
 		if (missing.length > 0) {
-			console.log('Missing required fields: ' + missing.join(', '));
-			return false;
+			errors.push('Missing required fields: ' + missing.join(', '));
 		}
 
 		if (roll.value < 1 || roll.value > roll.type) {
-			console.log('Roll value outside of bounds: 1 to ' + roll.type);
-			return false;
+			errors.push('Roll value outside of bounds: 1 to ' + roll.type);
 		}
 
 		if (roll.used && !roll.dateUsed) {
-			console.log('Roll is used, but date used is not set');
-			return false;
+			errors.push('Roll is used, but date used is not set');
 		}
 
 		if (roll.id && !roll.dateAdded) {
-			console.log('Roll has ID, but does not have dateAdded');
-			return false;
+			errors.push('Roll has ID, but does not have dateAdded');
 		}
 
 		if (roll.dateAdded && roll.dateAdded > Date.now()) {
-			console.log('Roll was added in the future');
-			return false;
+			errors.push('Roll was added in the future');
 		}
 
 		if (config.validTypes.indexOf(roll.type) === -1 && !(/^10{2,}$/.test(roll.type))) {
-			console.log('Roll has an invalid type');
-			return false;
+			errors.push('Roll has an invalid type');
 		}
 
 		if (typeof roll.certified !== 'boolean') {
-			console.log('Roll must have a boolean true/false property "certified"');
-			return false;
+			errors.push('Roll must have a boolean true/false property "certified"');
 		}
 
 		if (typeof roll.used !== 'boolean') {
-			console.log('Roll must have a boolean property "used"');
-			return false;
+			errors.push('Roll must have a boolean property "used"');
 		}
 
-		return true;
+		return errors;
 	},
 	get: function(id) {
 		var deferred = q.defer();
@@ -152,13 +145,17 @@ module.exports = {
 	},
 	create: function(roll) {
 		var deferred = q.defer(),
-			newRoll = Object.create(rollProto);
+			newRoll = Object.create(rollProto),
+			errors;
 
 		newRoll.init(roll);
 		newRoll.dateAdded = Date.now();
+		errors = this.validate(newRoll);
 
-		if (!this.validate(newRoll)) {
-			deferred.reject(new Error('Invalid roll'));
+		if (errors.length) {
+			deferred.reject(new Error("Invalid roll: " + errors.join(', ')));
+		} else if (newRoll.certified !== true) {
+			deferred.reject(new Error('Your roll must have a certified value of boolean true'))
 		} else {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
 				if (err) {
@@ -181,10 +178,11 @@ module.exports = {
 		return deferred.promise;
 	},
 	update: function(roll) {
-		var deferred = q.defer();
+		var deferred = q.defer(),
+			errors = this.validate(roll);
 
-		if (!this.validate(roll)) {
-			deferred.reject(new Error('Invalid roll'));
+		if (errors.length) {
+			deferred.reject(new Error('Invalid roll: ' + errors.join(', ')));
 		} else {
 			MongoClient.connect(config.database.connectionString(), function(err, db) {
 				if (err) {

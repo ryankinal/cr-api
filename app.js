@@ -27,7 +27,7 @@ app.post('/roll', function(req, res) {
 			meta: {
 				success: false
 			},
-			error: err
+			error: err.message
 		})
 	});
 });
