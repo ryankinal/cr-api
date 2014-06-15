@@ -154,7 +154,7 @@ app.get('/stats', function(req, res) {
 
 app.get('/stats/:type', function(req, res) {
 	stats.forType(parseInt(req.params.type)).then(function(stats) {
-		res.jsonpp({
+		res.jsonp({
 			meta: {
 				success: true
 			},
@@ -164,7 +164,7 @@ app.get('/stats/:type', function(req, res) {
 			stats: stats
 		});
 	}, function(err) {
-		res.jsonpp({
+		res.jsonp({
 			meta: {
 				success: false
 			},
